@@ -24,6 +24,7 @@ class _MyAppState extends State<MyApp> {
   };
 
   List<Meal> _availableMeals = DUMMY_MEALS;
+  List<Meal> _favoriteMeals = [];
 
   void _setFilters(Map<String,bool> filterData){
     setState(() {
@@ -46,6 +47,25 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+void _toggleFavorite(String mealId){
+    //indexWhere find mealId in favoriteMeals and get the index. it return the index = -1 if not found
+    final foundInIndex = _favoriteMeals.indexWhere((meal) => meal.id == mealId);
+    //if mealId found in favoriteMeals than remove (because it is toggle)
+    if(foundInIndex >= 0){
+      setState(() {
+        _favoriteMeals.removeAt(foundInIndex); 
+      });
+    }else{//if mealId not found in favoriteMeals than add
+        setState(() {
+          _favoriteMeals.add(DUMMY_MEALS.firstWhere((meal) => meal.id == mealId)); 
+        });
+    }
+
+}
+
+bool _isMealFavorite(String mealId){
+  return _favoriteMeals.any((meal)=> meal.id ==mealId);
+}
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -72,9 +92,9 @@ class _MyAppState extends State<MyApp> {
       // home: CategoriesScreen(),
       routes: {
         // '/': (ctx) => TabScreen(),
-        '/': (ctx)=> TabsScreenBottom(),
+        '/': (ctx)=> TabsScreenBottom(_favoriteMeals),
         '/category-meals': (ctx) => CategoryMealsScreen(_availableMeals),
-        MealDetailScreen.routeName: (ctx) => MealDetailScreen(),
+        MealDetailScreen.routeName: (ctx) => MealDetailScreen(_toggleFavorite, _isMealFavorite),
         FilterScreen.routeName: (ctx) => FilterScreen(_filters,_setFilters),
       },
       onGenerateRoute: (settings){
